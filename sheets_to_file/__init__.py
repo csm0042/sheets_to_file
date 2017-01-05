@@ -1,1 +1,1 @@
-from sheets_to_file import *
+from .sheets_to_file import GoogleSheetsToFile

@@ -17,12 +17,6 @@ from oauth2client import client
 from oauth2client import tools
 from oauth2client.file import Storage
 
-try:
-    import argparse
-    flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args()
-except ImportError:
-    flags = None
-
 
 # Authorship Info *********************************************************************************
 __author__ = "Christopher Maue"
@@ -42,11 +36,7 @@ class GoogleSheetsToFile(object):
     """
     def __init__(self, logger=None):
         self.logger = logger or logging.getLogger(__name__)
-        try:
-            import argparse
-            self.flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args()
-        except ImportError:
-            self.flags = None
+        self.flags = None
         self.home_dir = str()
         self.credential_dir = str()
         self.store = str()
@@ -126,18 +116,28 @@ class GoogleSheetsToFile(object):
 
 
     def write_to_file(self, lines=None, output_file=None):
-        self.file = open(output_file, "w")
-        for i, j in enumerate(lines):
-            if isinstance(j, list):
-                for k, l in enumerate(j):
-                    if k > 0:
-                        self.file.write(", ")
-                    self.file.write(l)
-                self.file.write("\n")
-            elif isinstance(j, str):
-                self.file.write(j)
-                self.file.write("\n")
-        self.file.close()
+        """ Writes data obtained from google sheet to a csv file on a local disk """
+        try:
+            self.file = open(output_file, "w")
+            self.logger.debug("Successfully opened [%s] for writing", output_file)
+            for i, j in enumerate(lines):
+                if isinstance(j, list):
+                    for k, l in enumerate(j):
+                        if k > 0:
+                            self.file.write(", ")
+                            self.logger.debug("Writing [%s] to file", "', '")
+                        self.file.write(l)
+                        self.logger.debug("Writing [%s] to file", l)
+                    self.file.write("\n")
+                    self.logger.debug("Writing [%s] to file", "CR-LF")
+                elif isinstance(j, str):
+                    self.file.write(j)
+                    self.file.write("\n")
+            self.file.close()
+            self.logger.debug("Closing file [%s]", output_file)
+        except:
+            self.logger.error("Unable to open [%s] for writing", output_file)
+        
 
 
 
